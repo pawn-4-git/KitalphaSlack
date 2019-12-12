@@ -44,7 +44,7 @@ public class Sender2Slack {
             StringBuffer postStr = new StringBuffer();//POSTするデータ
             
             postStr.append("token=").append(token);
-            postStr.append("&text=").append(text);
+            postStr.append("&text=").append(new String(text.getBytes("UTF-8"), "UTF-8"));
             if(channel!=null&&channel.length()!=0){
                 postStr.append("&channel=").append(channel);
             }else{
