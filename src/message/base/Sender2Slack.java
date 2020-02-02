@@ -6,14 +6,18 @@
 package message.base;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.Scanner;
 
 /**
  *
@@ -44,10 +48,11 @@ public class Sender2Slack {
             StringBuffer postStr = new StringBuffer();//POSTするデータ
             
             postStr.append("token=").append(token);
-            postStr.append("&text=").append(new String(text.getBytes("UTF-8"), "UTF-8"));
+            postStr.append("&text=").append(URLEncoder.encode(text));
             if(channel!=null&&channel.length()!=0){
                 postStr.append("&channel=").append(channel);
             }else{
+                channel="general";
                 postStr.append("&channel=general");
             }
             if(asUser!=null&&asUser){
@@ -63,13 +68,28 @@ public class Sender2Slack {
                 ps.print(postStr);//データをPOSTする
             } //データをPOSTする
  
-            InputStream is = uc.getInputStream();//POSTした結果を取得
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String s;
-            while ((s = reader.readLine()) != null) {
-                System.out.println(s);
-            }
-            reader.close();
+//            InputStream is = uc.getInputStream();//POSTした結果を取得
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+//            String s;
+//            while ((s = reader.readLine()) != null) {
+//                System.out.println(s);
+//            }
+//            reader.close();
+            byte[] postData = String.format("token=%1s&channel=%2s&username=%3s&text=%4s", token,
+				channel, userName, URLEncoder.encode(text, "utf-8")).getBytes();
+
+		HttpURLConnection conn = (HttpURLConnection) new URL(urlString).openConnection();
+		conn.setDoOutput(true);
+		conn.setRequestMethod("POST");
+		conn.setRequestProperty("Content-Length", Integer.toString(postData.length));
+                try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+			wr.write(postData);
+		}
+
+		try (Scanner s = new Scanner(conn.getInputStream())) {
+			
+		}
+		
         } catch (MalformedURLException e) {
             System.err.println("Invalid URL format: " + urlString);
             return false;
