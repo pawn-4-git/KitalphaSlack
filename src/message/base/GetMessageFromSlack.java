@@ -22,7 +22,7 @@ import message.response.GetMessageResponse;
  * @author Pawn
  */
 public class GetMessageFromSlack {
-    final String  urlString="https://slack.com/api/channels.history";
+    final String  urlString="https://slack.com/api/conversations.history";
     
     /**
      * Slackにメッセージを送信する
